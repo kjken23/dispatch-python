@@ -46,7 +46,7 @@ class Verify(object):
     def format_and_verify_sampling(self, array_list):
         count_map = dict()
         result = self.sampling_verify(utils.format_matrix_long(array_list), count_map, self.samplingNum)
-    # print("抽样可靠率： %.6f" % result)
+        # print("抽样可靠率： %.6f" % result)
         return result
 
     def pos_format_and_verify_sampling(self, array_list):

@@ -83,3 +83,12 @@ def judge_if_row_full(array, n):
         if count(np.long(list2str(i), 2)) > n:
             return False
     return True
+
+
+def judge_if_col_full(choice, array, n):
+    y = choice[1]
+    col_count = 0
+    for arr in array:
+        if arr[y] == 1:
+            col_count += 1
+    return col_count < n / 2

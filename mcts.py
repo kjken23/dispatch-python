@@ -10,6 +10,7 @@ T = 63
 sampling_num = 10000
 MAX_CHOICE = 10
 CHOICES = []
+BASE = 0.95
 
 
 class State(object):
@@ -27,16 +28,19 @@ class State(object):
         ran = random.randint(0, len(CHOICES) - 1)
         temp_choice = copy.deepcopy(CHOICES)
         choice = temp_choice[ran]
-        flag = state.board[choice[0]][choice[1]] is not 1
+        flag = state.board[choice[0]][choice[1]] != 1
         test = copy.deepcopy(state.board)
         test[choice[0]][choice[1]] = 1
         flag = flag & utils.judge_if_row_full(test, N)
+        flag = flag & utils.judge_if_col_full(choice, test, N)
         while flag is False:
             ran = random.randint(0, len(CHOICES) - 1)
             choice = CHOICES[ran]
             test = copy.deepcopy(state.board)
             test[choice[0]][choice[1]] = 1
-            flag = utils.judge_if_row_full(test, N)
+            flag = state.board[choice[0]][choice[1]] != 1
+            flag = flag & utils.judge_if_row_full(test, N)
+            flag = flag & utils.judge_if_col_full(choice, test, N)
         choice = temp_choice.pop(ran)
         state.choices = self.choices + [choice]
         state.board[choice[0]][choice[1]] = 1
@@ -44,7 +48,7 @@ class State(object):
         state.is_full = utils.board_full(state.board, N)
         if state.is_full:
             verify = vy.Verify(N, T, sampling_num)
-            state.value = verify.format_and_verify_sampling(state.board)
+            state.value = (verify.format_and_verify_sampling(state.board) - BASE) * 10000
         return state
 
     def __repr__(self):
@@ -133,9 +137,9 @@ def best_child(node):
 
 def mcts(node):
     for i in range(MAX_CHOICE):
-        expand = tree_policy(node)
-        reward = default_policy(expand)
-        backup(expand, reward)
+        expand_node = tree_policy(node)
+        reward = default_policy(expand_node)
+        backup(expand_node, reward)
 
     print("------完成扩展和模拟，进行最佳叶子节点选择---------")
     best = best_child(node)
@@ -156,7 +160,7 @@ def main():
     init_node.state = init_state
     current_node = init_node
 
-    while current_node.state.round < 100:
+    while current_node.state.round < N * N:
         current_node = mcts(current_node)
 
     verify = vy.Verify(N, T, sampling_num)
