@@ -32,7 +32,7 @@ class State(object):
         test = copy.deepcopy(state.board)
         test[choice[0]][choice[1]] = 1
         flag = flag & utils.judge_if_row_full(test, N)
-        flag = flag & utils.judge_if_col_full(choice, test, N)
+        # flag = flag & utils.judge_if_col_full(choice, test, N)
         while flag is False:
             ran = random.randint(0, len(CHOICES) - 1)
             choice = CHOICES[ran]
@@ -40,15 +40,15 @@ class State(object):
             test[choice[0]][choice[1]] = 1
             flag = state.board[choice[0]][choice[1]] != 1
             flag = flag & utils.judge_if_row_full(test, N)
-            flag = flag & utils.judge_if_col_full(choice, test, N)
+            # flag = flag & utils.judge_if_col_full(choice, test, N)
         choice = temp_choice.pop(ran)
         state.choices = self.choices + [choice]
         state.board[choice[0]][choice[1]] = 1
         state.round = self.round + 1
-        state.is_full = utils.board_full(state.board, N)
-        if state.is_full:
-            verify = vy.Verify(N, T, sampling_num)
-            state.value = (verify.format_and_verify_sampling(state.board) - BASE) * 10000
+        # state.is_full = utils.board_full(state.board, N)
+        # if state.is_full:
+        verify = vy.Verify(N, T, sampling_num)
+        state.value = verify.format_and_verify_sampling(state.board) * 100
         return state
 
     def __repr__(self):
@@ -92,12 +92,12 @@ def expand(node):
 # 选择， 扩展
 def tree_policy(node):
     # 选择是否是叶子节点，
-    while node.state.is_full is False:
-        if len(node.children) < MAX_CHOICE:
-            node = expand(node)
-            return node
-        else:
-            node = best_child(node)
+    # while node.state.is_full is False:
+    if len(node.children) < MAX_CHOICE:
+        node = expand(node)
+        return node
+    else:
+        node = best_child(node)
 
     return node
 
@@ -105,8 +105,8 @@ def tree_policy(node):
 # 模拟
 def default_policy(node):
     now_state = node.state
-    while now_state.is_full is False:
-        now_state = now_state.new_state()
+    # while now_state.is_full is False:
+    now_state = now_state.new_state()
     return now_state.value
 
 
@@ -141,10 +141,10 @@ def mcts(node):
         reward = default_policy(expand_node)
         backup(expand_node, reward)
 
-    print("------完成扩展和模拟，进行最佳叶子节点选择---------")
     best = best_child(node)
-    print("round %d :" % best.state.round)
+    print("------round %d :完成扩展和模拟，进行最佳叶子节点选择---------" % best.state.round)
     print(best.state.choices)
+    print("result: %.4f %%" % best.state.value)
     # print(utils.judge_if_row_full(utils.pos_format_matrix(N, T, best.state.choices), N))
     print("--------------------------------------------------------")
 
