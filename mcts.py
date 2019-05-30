@@ -165,7 +165,7 @@ def main():
     best_value = 0.0
     best_board = []
     best_choices = []
-    while current_node.state.round < N * N:
+    while current_node.state.round < N * N - 1:
         current_node = mcts(current_node)
         if current_node.state.value > best_value:
             best_value = current_node.state.value
