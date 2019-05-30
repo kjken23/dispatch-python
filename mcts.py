@@ -142,11 +142,11 @@ def mcts(node):
         backup(expand_node, reward)
 
     best = best_child(node)
-    print("------round %d :完成扩展和模拟，进行最佳叶子节点选择---------" % best.state.round)
+    print("------round %d 完成扩展和模拟，进行最佳叶子节点选择---------" % best.state.round)
     print(best.state.choices)
     print("result: %.4f %%" % best.state.value)
     # print(utils.judge_if_row_full(utils.pos_format_matrix(N, T, best.state.choices), N))
-    print("--------------------------------------------------------")
+    print("---------------------------------------------------------------------")
 
     return best
 
