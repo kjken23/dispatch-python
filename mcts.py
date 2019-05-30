@@ -143,9 +143,9 @@ def mcts(node):
 
     best = best_child(node)
     print("------round %d 完成扩展和模拟，进行最佳叶子节点选择---------" % best.state.round)
-    # print(best.state.choices)
     for arr in best.state.board:
         print(arr)
+    print(best.state.choices)
     print("result: %.4f %%" % best.state.value)
     # print(utils.judge_if_row_full(utils.pos_format_matrix(N, T, best.state.choices), N))
     print("---------------------------------------------------------------------")
@@ -162,12 +162,21 @@ def main():
     init_node.state = init_state
     current_node = init_node
 
+    best_value = 0.0
+    best_board = []
+    best_choices = []
     while current_node.state.round < N * N:
         current_node = mcts(current_node)
+        if current_node.state.value > best_value:
+            best_value = current_node.state.value
+            best_board = copy.deepcopy(current_node.state.board)
+            best_choices = copy.deepcopy(current_node.state.choices)
 
-    verify = vy.Verify(N, T, sampling_num)
-    result = verify.pos_format_and_verify_sampling(current_node.state.choices)
-    print("result: %.6f" % result)
+    print("-----------------result------------------")
+    for arr in best_board:
+        print(arr)
+    print(best_choices)
+    print("抽样可靠率: %.4f %%" % best_value)
 
 
 if __name__ == "__main__":
