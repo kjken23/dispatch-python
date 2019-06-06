@@ -26,14 +26,17 @@ class State(object):
         state = State(N, T)
         state.value = self.value
         state.board = copy.deepcopy(self.board)
+        # 随机在步骤池中选择一步
         ran = random.randint(0, len(CHOICES) - 1)
         temp_choice = copy.deepcopy(CHOICES)
         choice = temp_choice[ran]
         flag = state.board[choice[0]][choice[1]] != 1
         test = copy.deepcopy(state.board)
         test[choice[0]][choice[1]] = 1
+        # 判断棋盘行列是否已满
         flag = flag & utils.judge_if_row_full(test, N)
         flag = flag & utils.judge_if_col_full(choice, test, N)
+        # 如果不符合条件，重新进行随机
         while flag is False:
             ran = random.randint(0, len(CHOICES) - 1)
             choice = CHOICES[ran]
@@ -48,6 +51,7 @@ class State(object):
         state.round = self.round + 1
         # state.is_full = utils.board_full(state.board, N)
         # if state.is_full:
+        # 计算抽样可靠性
         verify = vy.Verify(N, T, sampling_num)
         state.value = verify.format_and_verify_sampling(state.board) * 100
         return state
@@ -137,6 +141,7 @@ def best_child(node):
 
 
 def mcts(node, best_value):
+    # 每次模拟进行MAX_ATTEMPT次机会，取得比最好值更好的以后继续进行
     for i in range(MAX_ATTEMPT):
         for j in range(MAX_CHOICE):
             expand_node = tree_policy(node)
@@ -176,7 +181,7 @@ def main():
     previous_choices = {'1': [], '2': [], '3': []}
 
     while current_node.state.round < (N * N) / 2:
-
+        # 存储之前的步骤
         if current_node.state.round > 3:
             previous_value['3'] = previous_value['2']
             previous_board['3'] = copy.deepcopy(previous_board['2'])
@@ -199,6 +204,7 @@ def main():
             best_board = copy.deepcopy(current_node.state.board)
             best_choices = copy.deepcopy(current_node.state.choices)
 
+        # 如果可靠率下降，超过最佳值0.1%，启用回退策略
         if current_node.state.value < best_value and (best_value - current_node.state.value) > 0.1:
             print("-------round %d 未达到要求，启用回退策略----------" % current_node.state.round)
             return_num = 3
@@ -211,6 +217,7 @@ def main():
             best_value = previous_value['3']
             best_board = previous_board['3']
             best_choices = previous_choices['3']
+            print("----------完成回退--------------")
 
     print("-----------------result------------------")
     for arr in best_board:
