@@ -91,4 +91,4 @@ def judge_if_col_full(choice, array, n):
     for arr in array:
         if arr[y] == 1:
             col_count += 1
-    return col_count < n / 2
+    return col_count < n / 3

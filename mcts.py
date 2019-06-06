@@ -8,7 +8,8 @@ import verify as vy
 N = 10
 T = 63
 sampling_num = 10000
-MAX_CHOICE = 10
+MAX_CHOICE = 15
+MAX_ATTEMPT = 10
 CHOICES = []
 BASE = 0.95
 
@@ -32,7 +33,7 @@ class State(object):
         test = copy.deepcopy(state.board)
         test[choice[0]][choice[1]] = 1
         flag = flag & utils.judge_if_row_full(test, N)
-        # flag = flag & utils.judge_if_col_full(choice, test, N)
+        flag = flag & utils.judge_if_col_full(choice, test, N)
         while flag is False:
             ran = random.randint(0, len(CHOICES) - 1)
             choice = CHOICES[ran]
@@ -40,7 +41,7 @@ class State(object):
             test[choice[0]][choice[1]] = 1
             flag = state.board[choice[0]][choice[1]] != 1
             flag = flag & utils.judge_if_row_full(test, N)
-            # flag = flag & utils.judge_if_col_full(choice, test, N)
+            flag = flag & utils.judge_if_col_full(choice, test, N)
         choice = temp_choice.pop(ran)
         state.choices = self.choices + [choice]
         state.board[choice[0]][choice[1]] = 1
@@ -135,13 +136,18 @@ def best_child(node):
     return best
 
 
-def mcts(node):
-    for i in range(MAX_CHOICE):
-        expand_node = tree_policy(node)
-        reward = default_policy(expand_node)
-        backup(expand_node, reward)
+def mcts(node, best_value):
+    for i in range(MAX_ATTEMPT):
+        for j in range(MAX_CHOICE):
+            expand_node = tree_policy(node)
+            reward = default_policy(expand_node)
+            backup(expand_node, reward)
+        best = best_child(node)
+        if best.state.value > best_value:
+            break
+        if i == MAX_ATTEMPT - 1:
+            print("------round %d 当前未搜索到更优解，进入下一层--------" % best.state.round)
 
-    best = best_child(node)
     print("------round %d 完成扩展和模拟，进行最佳叶子节点选择---------" % best.state.round)
     for arr in best.state.board:
         print(arr)
@@ -165,12 +171,46 @@ def main():
     best_value = 0.0
     best_board = []
     best_choices = []
-    while current_node.state.round < N * N - 1:
-        current_node = mcts(current_node)
+    previous_value = {'1': 0.0, '2': 0.0, '3': 0.0}
+    previous_board = {'1': [], '2': [], '3': []}
+    previous_choices = {'1': [], '2': [], '3': []}
+
+    while current_node.state.round < (N * N) / 2:
+
+        if current_node.state.round > 3:
+            previous_value['3'] = previous_value['2']
+            previous_board['3'] = copy.deepcopy(previous_board['2'])
+            previous_choices['3'] = copy.deepcopy(previous_choices['2'])
+
+        if current_node.state.round > 2:
+            previous_value['2'] = previous_value['1']
+            previous_board['2'] = copy.deepcopy(previous_board['1'])
+            previous_choices['2'] = copy.deepcopy(previous_choices['1'])
+
+        if current_node.state.round > 1:
+            previous_value['1'] = current_node.state.value
+            previous_board['1'] = copy.deepcopy(current_node.state.board)
+            previous_choices['1'] = copy.deepcopy(current_node.state.choices)
+
+        current_node = mcts(current_node, best_value)
+
         if current_node.state.value > best_value:
             best_value = current_node.state.value
             best_board = copy.deepcopy(current_node.state.board)
             best_choices = copy.deepcopy(current_node.state.choices)
+
+        if current_node.state.value < best_value and (best_value - current_node.state.value) > 0.1:
+            print("-------round %d 未达到要求，启用回退策略----------" % current_node.state.round)
+            return_num = 3
+            return_choice = []
+            current_node.state.round -= 3
+            for i in range(return_num):
+                return_choice += [current_node.state.choices.pop()]
+            for choice in return_choice:
+                current_node.state.board[choice[0]][choice[1]] = 1
+            best_value = previous_value['3']
+            best_board = previous_board['3']
+            best_choices = previous_choices['3']
 
     print("-----------------result------------------")
     for arr in best_board:
