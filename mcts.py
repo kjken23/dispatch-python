@@ -10,11 +10,13 @@ T = 63
 sampling_num = 10000
 MAX_CHOICE = 15
 MAX_ATTEMPT = 10
-CHOICES = []
+global CHOICES
 BASE = 0.95
 
 
 class State(object):
+    global CHOICES
+
     def __init__(self, n, t):
         self.value = 0.0
         self.board = [[0] * t for i in range(n)]
@@ -30,7 +32,7 @@ class State(object):
         ran = random.randint(0, len(CHOICES) - 1)
         temp_choice = copy.deepcopy(CHOICES)
         choice = temp_choice[ran]
-        flag = state.board[choice[0]][choice[1]] != 1
+        flag = state.board[choice[0]][choice[1]] is not 1
         test = copy.deepcopy(state.board)
         test[choice[0]][choice[1]] = 1
         # 判断棋盘行列是否已满
@@ -42,7 +44,7 @@ class State(object):
             choice = CHOICES[ran]
             test = copy.deepcopy(state.board)
             test[choice[0]][choice[1]] = 1
-            flag = state.board[choice[0]][choice[1]] != 1
+            flag = state.board[choice[0]][choice[1]] is not 1
             flag = flag & utils.judge_if_row_full(test, N)
             flag = flag & utils.judge_if_col_full(choice, test, N)
         choice = temp_choice.pop(ran)
@@ -151,7 +153,9 @@ def mcts(node, best_value):
         if best.state.value > best_value:
             break
         if i == MAX_ATTEMPT - 1:
-            print("------round %d 当前未搜索到更优解，进入下一层--------" % best.state.round)
+            print("------round %d 未能搜索到更优解--------" % best.state.round)
+        else:
+            print("------round %d 尝试寻找更优解失败，进行下一次尝试--------" % best.state.round)
 
     print("------round %d 完成扩展和模拟，进行最佳叶子节点选择---------" % best.state.round)
     for arr in best.state.board:
@@ -165,6 +169,8 @@ def mcts(node, best_value):
 
 
 def main():
+    global CHOICES
+    CHOICES = []
     for x in range(N):
         for y in range(T):
             CHOICES.append([x, y])
@@ -208,12 +214,11 @@ def main():
         if current_node.state.value < best_value and (best_value - current_node.state.value) > 0.1:
             print("-------round %d 未达到要求，启用回退策略----------" % current_node.state.round)
             return_num = 3
-            return_choice = []
-            current_node.state.round -= 3
+            current_node.state.round -= return_num
             for i in range(return_num):
-                return_choice += [current_node.state.choices.pop()]
-            for choice in return_choice:
-                current_node.state.board[choice[0]][choice[1]] = 1
+                choice = current_node.state.choices.pop()
+                current_node.state.board[choice[0]][choice[1]] = 0
+                CHOICES.append(choice)
             best_value = previous_value['3']
             best_board = previous_board['3']
             best_choices = previous_choices['3']
