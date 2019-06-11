@@ -11,7 +11,7 @@ sampling_num = 10000
 MAX_CHOICE = 15
 MAX_ATTEMPT = 15
 global CHOICES
-THRESHOLD = 0.15
+THRESHOLD = 0.1
 
 
 class State(object):
@@ -189,6 +189,7 @@ def main():
     init_node.state = init_state
     current_node = init_node
 
+    best_round = 0
     best_value = 0.0
     best_board = []
     best_choices = []
@@ -198,7 +199,7 @@ def main():
     previous_choices = {}
     return_round = {}
 
-    while best_value < 97.5:
+    while current_node.state.round < N * N:
         # 存储之前的步骤
         previous_node[str(current_node.state.round)] = copy.deepcopy(current_node)
         previous_value[str(current_node.state.round)] = current_node.state.value
@@ -208,6 +209,7 @@ def main():
         current_node = mcts(current_node, best_value)
 
         if current_node.state.value > best_value:
+            best_round = current_node.state.round
             best_value = current_node.state.value
             best_board = copy.deepcopy(current_node.state.board)
             best_choices = copy.deepcopy(current_node.state.choices)
@@ -230,11 +232,12 @@ def main():
                 current_node.state.board[choice[0]][choice[1]] = 0
                 CHOICES.append(choice)
 
-            best_value = previous_value[str(current_node.state.round)]
-            print("%.4f" % best_value)
-            best_board = copy.deepcopy(previous_board[str(current_node.state.round)])
-            best_choices = copy.deepcopy(previous_choices[str(current_node.state.round)])
+            if best_value < previous_value[str(current_node.state.round)] or best_round > current_node.state.round:
+                best_value = previous_value[str(current_node.state.round)]
+                best_board = copy.deepcopy(previous_board[str(current_node.state.round)])
+                best_choices = copy.deepcopy(previous_choices[str(current_node.state.round)])
             current_node = copy.deepcopy(previous_node[str(current_node.state.round)])
+            print("%.4f" % best_value)
             print("剩余CHOICES长度： %d" % len(CHOICES))
             print("-------------完成回退--------------")
 
