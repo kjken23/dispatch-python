@@ -1,11 +1,6 @@
 import numpy as np
 
 
-# 循环移动数组k位，左移为正，右移为负
-def move_array_element(array, k):
-    return array[k:] + array[:k]
-
-
 def rotate_right(i, distance, t):
     right = np.long(i >> distance)
     left = np.long(i << (t - distance))
@@ -15,30 +10,6 @@ def rotate_right(i, distance, t):
 
 def list2str(array):
     return "".join([str(x) for x in array])
-
-
-def format_matrix(n, t, array):
-    temp_matrix = [[0] * t for i in range(n)]
-    for x in temp_matrix:
-        x[0] = 1
-    for i in range(len(array)):
-        pos = 1
-        for j in array[i]:
-            pos += j
-            temp_matrix[i][pos % t] = 1
-            pos += 1
-    matrix = []
-    for i in range(len(array)):
-        matrix.append(np.long(list2str(temp_matrix[i]), 2))
-    return matrix
-
-
-def pos_format_matrix(n, t, array):
-    temp_matrix = [[0] * t for i in range(n)]
-    for arr in array:
-        temp_matrix[arr[0]][arr[1]] = 1
-    matrix = []
-    return matrix
 
 
 def pos_format_matrix_str(n, t, array):

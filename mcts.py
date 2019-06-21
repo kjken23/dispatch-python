@@ -6,7 +6,7 @@ import utils
 import verify as vy
 
 N = 10
-T = 63
+T = 90
 sampling_num = 10000
 MAX_CHOICE = 15
 MAX_ATTEMPT = 15
@@ -36,7 +36,7 @@ class State(object):
         test[choice[0]][choice[1]] = 1
         # 判断棋盘行列是否已满
         flag = flag & utils.judge_if_row_full(test, N)
-        flag = flag & utils.judge_if_col_full(choice, test, N)
+        # flag = flag & utils.judge_if_col_full(choice, test, N)
         # 如果不符合条件，重新进行随机
         while flag is False:
             ran = random.randint(0, len(temp_choices) - 1)
@@ -45,7 +45,7 @@ class State(object):
             test[choice[0]][choice[1]] = 1
             flag = state.board[choice[0]][choice[1]] is not 1
             flag = flag & utils.judge_if_row_full(test, N)
-            flag = flag & utils.judge_if_col_full(choice, test, N)
+            # flag = flag & utils.judge_if_col_full(choice, test, N)
         choice = temp_choices.pop(ran)
         state.choices = self.choices + [choice]
         state.board[choice[0]][choice[1]] = 1
