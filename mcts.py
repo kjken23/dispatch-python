@@ -4,6 +4,7 @@ import sys
 import math
 import random
 import utils
+import time
 import verify as vy
 
 N = 10
@@ -181,6 +182,7 @@ def mcts(node, best_value):
 
 
 def main():
+    start = time.time()
     global CHOICES
     CHOICES = []
     for x in range(N):
@@ -248,6 +250,9 @@ def main():
         print(arr)
     print(best_choices)
     print("sampling reliability: %.4f %%" % best_value)
+    end = time.time()
+    print('Running time: %s Seconds' % (end - start))
+    print('Average round time: %.4f Seconds' % ((end - start) / best_round))
 
 
 if __name__ == "__main__":
