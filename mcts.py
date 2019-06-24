@@ -226,7 +226,7 @@ def main():
                 return_round[str(current_node.state.round)] += 1
             return_num = base_return_num + return_round.get(str(current_node.state.round))
             
-            print("-------round %d can't fit the demand，active rollback，rollback num%d----------" % (current_node.state.round, return_num))
+            print("-------round %d can't fit the demand, active rollback, rollback num%d----------" % (current_node.state.round, return_num))
 
             current_node.state.round -= return_num
             for i in range(return_num):
