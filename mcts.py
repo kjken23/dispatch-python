@@ -168,7 +168,7 @@ def mcts(node, best_value):
         if temp[0] == current_choice[0] and temp[1] == current_choice[1]:
             CHOICES.pop(i)
 
-    print("------round %d finished expending and simulation，choosing best leaf node---------" % best.state.round)
+    print("------round %d finished expending and simulation, choosing best leaf node---------" % best.state.round)
     for arr in best.state.board:
         print(arr)
     print(best.state.choices)
