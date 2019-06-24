@@ -5,8 +5,8 @@ def rotate_right(i, distance, t):
     return (right | left) & mask
 
 
-def list2str(array):
-    return "".join([str(x) for x in array])
+# def list2str(array):
+#     return "".join([str(x) for x in array])
 
 
 # def pos_format_matrix_str(n, t, array):
