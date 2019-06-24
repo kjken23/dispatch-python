@@ -157,9 +157,9 @@ def mcts(node, best_value):
         if best.state.value > best_value or (best.state.value < best_value and best_value - best.state.value < THRESHOLD):
             break
         if i == MAX_ATTEMPT - 1:
-            print("------round %d 未能搜索到更优解--------" % best.state.round)
+            print("------round %d can't get a better answer--------" % best.state.round)
         else:
-            print("------round %d 尝试寻找更优解失败，进行下一次尝试--------" % best.state.round)
+            print("------round %d find better answers failed，move to next attempt--------" % best.state.round)
 
     # 从CHOICES中去除最佳节点选择的步骤
     current_choice = best.state.choices[-1]
@@ -168,12 +168,12 @@ def mcts(node, best_value):
         if temp[0] == current_choice[0] and temp[1] == current_choice[1]:
             CHOICES.pop(i)
 
-    print("------round %d 完成扩展和模拟，进行最佳叶子节点选择---------" % best.state.round)
+    print("------round %d finished expending and simulation，choosing best leaf node---------" % best.state.round)
     for arr in best.state.board:
         print(arr)
     print(best.state.choices)
     print("result: %.4f %%" % best.state.value)
-    print("剩余CHOICES长度： %d" % len(CHOICES))
+    print("length of CHOICES： %d" % len(CHOICES))
     # print(utils.judge_if_row_full(utils.pos_format_matrix(N, T, best.state.choices), N))
     print("---------------------------------------------------------------------")
 
@@ -226,7 +226,7 @@ def main():
                 return_round[str(current_node.state.round)] += 1
             return_num = base_return_num + return_round.get(str(current_node.state.round))
             
-            print("-------round %d 未达到要求，启用回退策略，回退步数%d----------" % (current_node.state.round, return_num))
+            print("-------round %d can't fit the demand，active rollback，rollback num%d----------" % (current_node.state.round, return_num))
 
             current_node.state.round -= return_num
             for i in range(return_num):
@@ -240,14 +240,14 @@ def main():
                 best_choices = copy.deepcopy(previous_choices[str(current_node.state.round)])
             current_node = copy.deepcopy(previous_node[str(current_node.state.round)])
             print("%.4f" % best_value)
-            print("剩余CHOICES长度： %d" % len(CHOICES))
-            print("-------------完成回退--------------")
+            print("length of CHOICES： %d" % len(CHOICES))
+            print("-------------finished rollback--------------")
 
     print("-----------------result------------------")
     for arr in best_board:
         print(arr)
     print(best_choices)
-    print("抽样可靠率: %.4f %%" % best_value)
+    print("sampling reliability: %.4f %%" % best_value)
 
 
 if __name__ == "__main__":
