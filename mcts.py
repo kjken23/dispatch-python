@@ -1,3 +1,4 @@
+# coding=utf-8 
 import copy
 import sys
 import math
@@ -200,7 +201,7 @@ def main():
     previous_choices = {}
     return_round = {}
 
-    while current_node.state.round < N * N:
+    while current_node.state.value < 99.0:
         # 存储之前的步骤
         previous_node[str(current_node.state.round)] = copy.deepcopy(current_node)
         previous_value[str(current_node.state.round)] = current_node.state.value
