@@ -6,7 +6,7 @@ import utils
 import verify as vy
 
 N = 10
-T = 90
+T = 87
 sampling_num = 10000
 MAX_CHOICE = 15
 MAX_ATTEMPT = 15
@@ -19,6 +19,7 @@ class State(object):
     def __init__(self, n, t):
         self.value = 0.0
         self.board = [[0] * t for i in range(n)]
+        self.verify_num = [0] * n
         self.round = 0
         self.choices = []
         self.is_full = False
@@ -28,33 +29,35 @@ class State(object):
         state = State(N, T)
         state.value = self.value
         state.board = copy.deepcopy(self.board)
+        state.verify_num = copy.deepcopy(self.verify_num)
         # 随机在步骤池中选择一步
         ran = random.randint(0, len(temp_choices) - 1)
         choice = temp_choices[ran]
-        flag = state.board[choice[0]][choice[1]] is not 1
-        test = copy.deepcopy(state.board)
-        test[choice[0]][choice[1]] = 1
+        flag = utils.judge_if_is_one(state.verify_num[choice[0]], choice[1], T)
+        test = copy.deepcopy(state.verify_num)
+        test_move_num = 1 << (T - choice[1])
+        test[choice[0]] |= test_move_num
         # 判断棋盘行列是否已满
         flag = flag & utils.judge_if_row_full(test, N)
-        # flag = flag & utils.judge_if_col_full(choice, test, N)
         # 如果不符合条件，重新进行随机
         while flag is False:
             ran = random.randint(0, len(temp_choices) - 1)
             choice = temp_choices[ran]
-            test = copy.deepcopy(state.board)
-            test[choice[0]][choice[1]] = 1
-            flag = state.board[choice[0]][choice[1]] is not 1
+            test = copy.deepcopy(state.verify_num)
+            test_move_num = 1 << (T - choice[1])
+            test[choice[0]] |= test_move_num
+            flag = utils.judge_if_is_one(state.verify_num[choice[0]], choice[1], T)
             flag = flag & utils.judge_if_row_full(test, N)
             # flag = flag & utils.judge_if_col_full(choice, test, N)
         choice = temp_choices.pop(ran)
         state.choices = self.choices + [choice]
         state.board[choice[0]][choice[1]] = 1
+        move_num = 1 << (T - choice[1])
+        state.verify_num[choice[0]] |= move_num
         state.round = self.round + 1
-        # state.is_full = utils.board_full(state.board, N)
-        # if state.is_full:
         # 计算抽样可靠性
         verify = vy.Verify(N, T, sampling_num)
-        state.value = verify.format_and_verify_sampling(state.board) * 100
+        state.value = verify.format_and_verify_sampling(state.verify_num) * 100
         return state
 
     def __repr__(self):
@@ -98,7 +101,6 @@ def expand(node, temp_choices):
 # 选择， 扩展
 def tree_policy(node, temp_choices):
     # 选择是否是叶子节点，
-    # while node.state.is_full is False:
     if len(node.children) < MAX_CHOICE:
         node = expand(node, temp_choices)
         return node
@@ -111,7 +113,6 @@ def tree_policy(node, temp_choices):
 # 模拟
 def default_policy(node, temp_choices):
     now_state = node.state
-    # while now_state.is_full is False:
     now_state = now_state.new_state(temp_choices)
     return now_state.value
 

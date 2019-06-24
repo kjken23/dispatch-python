@@ -1,8 +1,18 @@
 import copy
 import random
-import numpy as np
 
 import utils
+
+
+def judge_single_node(array_list, i, n, t):
+    mask = (1 << t) - 1
+    others = 0
+
+    for j in range(n):
+        if j == i:
+            continue
+        others = others | array_list[j]
+    return (array_list[i] & mask) & (~others & mask) > 0
 
 
 class Verify(object):
@@ -12,22 +22,13 @@ class Verify(object):
         self.t = t
         self.samplingNum = sampling_num
 
-    def judge_single_node(self, array_list, i):
-        mask = np.long((np.long(1) << self.t) - np.long(1))
-        others = np.long(0)
-        for j in range(self.n):
-            if j == i:
-                continue
-            others = np.long(others | array_list[j])
-        return np.long(np.long(array_list[i] & mask) & np.long(~others & mask)) > np.long(0)
-
     def judge(self, array_list, count_map):
         for i in range(len(array_list)):
-            if self.judge_single_node(array_list, i):
+            if judge_single_node(array_list, i, self.n, self.t):
                 count_map[i] = count_map[i] + 1
 
     def sampling_verify(self, array_list, count_map, sampling_num):
-        temp = copy.copy(array_list)
+        temp = copy.deepcopy(array_list)
         for i in range(len(array_list)):
             count_map[i] = 0
 
@@ -45,12 +46,6 @@ class Verify(object):
 
     def format_and_verify_sampling(self, array_list):
         count_map = dict()
-        result = self.sampling_verify(utils.format_matrix_long(array_list), count_map, self.samplingNum)
-        # print("抽样可靠率： %.6f" % result)
-        return result
-
-    def pos_format_and_verify_sampling(self, array_list):
-        count_map = dict()
-        result = self.sampling_verify(utils.pos_format_matrix_str(10, 63, array_list), count_map, self.samplingNum)
+        result = self.sampling_verify(array_list, count_map, self.samplingNum)
         # print("抽样可靠率： %.6f" % result)
         return result
