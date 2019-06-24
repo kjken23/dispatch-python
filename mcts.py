@@ -159,7 +159,7 @@ def mcts(node, best_value):
         if i == MAX_ATTEMPT - 1:
             print("------round %d can't get a better answer--------" % best.state.round)
         else:
-            print("------round %d find better answers failed，move to next attempt--------" % best.state.round)
+            print("------round %d find better answers failed,move to next attempt--------" % best.state.round)
 
     # 从CHOICES中去除最佳节点选择的步骤
     current_choice = best.state.choices[-1]
