@@ -173,7 +173,7 @@ def mcts(node, best_value):
         print(arr)
     print(best.state.choices)
     print("result: %.4f %%" % best.state.value)
-    print("length of CHOICES： %d" % len(CHOICES))
+    print("length of CHOICES: %d" % len(CHOICES))
     # print(utils.judge_if_row_full(utils.pos_format_matrix(N, T, best.state.choices), N))
     print("---------------------------------------------------------------------")
 
@@ -240,7 +240,7 @@ def main():
                 best_choices = copy.deepcopy(previous_choices[str(current_node.state.round)])
             current_node = copy.deepcopy(previous_node[str(current_node.state.round)])
             print("%.4f" % best_value)
-            print("length of CHOICES： %d" % len(CHOICES))
+            print("length of CHOICES: %d" % len(CHOICES))
             print("-------------finished rollback--------------")
 
     print("-----------------result------------------")
