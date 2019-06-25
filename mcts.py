@@ -10,6 +10,8 @@ import verify as vy
 N = 10
 T = 87
 sampling_num = 10000
+START_MAX_CHOICE = 5
+START_MAX_ATTEMPT = 3
 MAX_CHOICE = 15
 MAX_ATTEMPT = 15
 global CHOICES
@@ -147,14 +149,20 @@ def best_child(node):
 def mcts(node, best_value):
     global CHOICES
     # 每次模拟进行MAX_ATTEMPT次机会，取得比最好值更好的以后继续进行
+    if node.state.value < 90.0:
+        max_attempt = START_MAX_ATTEMPT
+        max_choice = START_MAX_CHOICE
+    else:
+        max_attempt = MAX_ATTEMPT
+        max_choice = MAX_CHOICE
     temp_choices = copy.deepcopy(CHOICES)
-    for i in range(MAX_ATTEMPT):
-        for j in range(MAX_CHOICE):
+    for i in range(max_attempt):
+        for j in range(max_choice):
             expand_node = tree_policy(node, temp_choices)
             reward = default_policy(expand_node, temp_choices)
             backup(expand_node, reward)
         best = best_child(node)
-        print("%.4f"% best.state.value)
+        print("%.4f" % best.state.value)
         if best.state.value > best_value or (best.state.value < best_value and best_value - best.state.value < THRESHOLD):
             break
         if i == MAX_ATTEMPT - 1:
