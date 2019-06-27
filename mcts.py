@@ -8,7 +8,7 @@ import time
 import verify as vy
 
 N = 20
-T = 170
+T = 180
 sampling_num = 10000
 START_MAX_CHOICE = 5
 START_MAX_ATTEMPT = 3
@@ -16,6 +16,7 @@ MAX_CHOICE = 15
 MAX_ATTEMPT = 15
 global CHOICES
 THRESHOLD = 0.05
+FAST_GROW_THRESHOLD = 95.0
 
 
 class State(object):
@@ -148,7 +149,7 @@ def best_child(node):
 def mcts(node, best_value):
     global CHOICES
     # 每次模拟进行MAX_ATTEMPT次机会，取得比最好值更好的以后继续进行
-    if node.state.value < 90.0:
+    if node.state.value < FAST_GROW_THRESHOLD:
         max_attempt = START_MAX_ATTEMPT
         max_choice = START_MAX_CHOICE
     else:
