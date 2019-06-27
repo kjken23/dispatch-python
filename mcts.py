@@ -15,7 +15,7 @@ START_MAX_ATTEMPT = 3
 MAX_CHOICE = 15
 MAX_ATTEMPT = 15
 global CHOICES
-THRESHOLD = 0.1
+THRESHOLD = 0.05
 
 
 class State(object):
@@ -178,8 +178,8 @@ def mcts(node, best_value):
             CHOICES.pop(i)
 
     print("------round %d finished expending and simulation, choosing best leaf node---------" % best.state.round)
-    # for arr in best.state.board:
-    #     print(arr)
+    for arr in best.state.verify_num:
+        print((bin(arr)))
     print(best.state.choices)
     print("result: %.4f %%" % best.state.value)
     print("length of CHOICES: %d" % len(CHOICES))
