@@ -42,7 +42,7 @@ class State(object):
         test_move_num = 1 << (T - choice[1])
         test[choice[0]] |= test_move_num
         # 判断棋盘行列是否已满
-        # flag = flag & utils.judge_if_row_full(test, N)
+        flag = flag & utils.judge_if_row_full(test, N)
         # 如果不符合条件，重新进行随机
         while flag is False:
             ran = random.randint(0, len(temp_choices) - 1)
@@ -51,8 +51,7 @@ class State(object):
             test_move_num = 1 << (T - choice[1])
             test[choice[0]] |= test_move_num
             flag = utils.judge_if_is_one(state.verify_num[choice[0]], choice[1], T)
-            # flag = flag & utils.judge_if_row_full(test, N)
-            # flag = flag & utils.judge_if_col_full(choice, test, N)
+            flag = flag & utils.judge_if_row_full(test, N)
         choice = temp_choices.pop(ran)
         state.choices = self.choices + [choice]
         # state.board[choice[0]][choice[1]] = 1
