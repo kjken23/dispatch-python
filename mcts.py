@@ -7,8 +7,8 @@ import utils
 import time
 import verify as vy
 
-N = 10
-T = 87
+N = 20
+T = 170
 sampling_num = 10000
 START_MAX_CHOICE = 5
 START_MAX_ATTEMPT = 3
@@ -22,7 +22,7 @@ class State(object):
 
     def __init__(self, n, t):
         self.value = 0.0
-        self.board = [[0] * t for i in range(n)]
+        # self.board = [[0] * t for i in range(n)]
         self.verify_num = [0] * n
         self.round = 0
         self.choices = []
@@ -32,7 +32,7 @@ class State(object):
         global CHOICES
         state = State(N, T)
         state.value = self.value
-        state.board = copy.deepcopy(self.board)
+        # state.board = copy.deepcopy(self.board)
         state.verify_num = copy.deepcopy(self.verify_num)
         # 随机在步骤池中选择一步
         ran = random.randint(0, len(temp_choices) - 1)
@@ -42,7 +42,7 @@ class State(object):
         test_move_num = 1 << (T - choice[1])
         test[choice[0]] |= test_move_num
         # 判断棋盘行列是否已满
-        flag = flag & utils.judge_if_row_full(test, N)
+        # flag = flag & utils.judge_if_row_full(test, N)
         # 如果不符合条件，重新进行随机
         while flag is False:
             ran = random.randint(0, len(temp_choices) - 1)
@@ -51,11 +51,11 @@ class State(object):
             test_move_num = 1 << (T - choice[1])
             test[choice[0]] |= test_move_num
             flag = utils.judge_if_is_one(state.verify_num[choice[0]], choice[1], T)
-            flag = flag & utils.judge_if_row_full(test, N)
+            # flag = flag & utils.judge_if_row_full(test, N)
             # flag = flag & utils.judge_if_col_full(choice, test, N)
         choice = temp_choices.pop(ran)
         state.choices = self.choices + [choice]
-        state.board[choice[0]][choice[1]] = 1
+        # state.board[choice[0]][choice[1]] = 1
         move_num = 1 << (T - choice[1])
         state.verify_num[choice[0]] |= move_num
         state.round = self.round + 1
@@ -65,8 +65,8 @@ class State(object):
         return state
 
     def __repr__(self):
-        return "State: {}, board: {}, value: {}, choices: {}".format(
-            hash(self), self.board, self.value, self.choices)
+        return "State: {},, value: {}, choices: {}".format(
+            hash(self), self.value, self.choices)
 
 
 class Node(object):
@@ -178,8 +178,8 @@ def mcts(node, best_value):
             CHOICES.pop(i)
 
     print("------round %d finished expending and simulation, choosing best leaf node---------" % best.state.round)
-    for arr in best.state.board:
-        print(arr)
+    # for arr in best.state.board:
+    #     print(arr)
     print(best.state.choices)
     print("result: %.4f %%" % best.state.value)
     print("length of CHOICES: %d" % len(CHOICES))
@@ -203,11 +203,13 @@ def main():
 
     best_round = 0
     best_value = 0.0
-    best_board = []
+    # best_board = []
+    best_verify_num = []
     best_choices = []
     previous_node = {}
     previous_value = {}
-    previous_board = {}
+    # previous_board = {}
+    previous_verify_num = {}
     previous_choices = {}
     return_round = {}
 
@@ -215,7 +217,7 @@ def main():
         # 存储之前的步骤
         previous_node[str(current_node.state.round)] = copy.deepcopy(current_node)
         previous_value[str(current_node.state.round)] = current_node.state.value
-        previous_board[str(current_node.state.round)] = copy.deepcopy(current_node.state.board)
+        previous_verify_num[str(current_node.state.round)] = copy.deepcopy(current_node.state.verify_num)
         previous_choices[str(current_node.state.round)] = copy.deepcopy(current_node.state.choices)
 
         current_node = mcts(current_node, best_value)
@@ -223,7 +225,8 @@ def main():
         if current_node.state.value > best_value:
             best_round = current_node.state.round
             best_value = current_node.state.value
-            best_board = copy.deepcopy(current_node.state.board)
+            # best_board = copy.deepcopy(current_node.state.board)
+            best_verify_num = copy.deepcopy(current_node.state.verify_num)
             best_choices = copy.deepcopy(current_node.state.choices)
 
         # 如果可靠率下降，差值超过给定阈值，启用回退策略
@@ -241,21 +244,24 @@ def main():
             current_node.state.round -= return_num
             for i in range(return_num):
                 choice = current_node.state.choices.pop()
-                current_node.state.board[choice[0]][choice[1]] = 0
+                move_num = 1 << (T - choice[1])
+                current_node.state.verify_num[choice[0]] &= ~move_num
+                # current_node.state.board[choice[0]][choice[1]] = 0
                 CHOICES.append(choice)
 
             if best_value < previous_value[str(current_node.state.round)] or best_round > current_node.state.round:
                 best_value = previous_value[str(current_node.state.round)]
-                best_board = copy.deepcopy(previous_board[str(current_node.state.round)])
+                # best_board = copy.deepcopy(previous_board[str(current_node.state.round)])
+                best_verify_num = copy.deepcopy(previous_verify_num[str(current_node.state.round)])
                 best_choices = copy.deepcopy(previous_choices[str(current_node.state.round)])
             current_node = copy.deepcopy(previous_node[str(current_node.state.round)])
             print("%.4f" % best_value)
             print("length of CHOICES: %d" % len(CHOICES))
             print("-------------finished rollback--------------")
 
-    print("-----------------result------------------")
-    for arr in best_board:
-        print(arr)
+    print("-----------------best result------------------")
+    for arr in best_verify_num:
+        print(bin(arr))
     print(best_choices)
     print("sampling reliability: %.4f %%" % best_value)
     end = time.time()
