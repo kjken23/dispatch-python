@@ -178,8 +178,8 @@ def mcts(node, best_value):
             CHOICES.pop(i)
 
     print("------round %d finished expending and simulation, choosing best leaf node---------" % best.state.round)
-    for arr in best.state.verify_num:
-        print((bin(arr)))
+    # for arr in best.state.verify_num:
+    #     print((bin(arr)))
     print(best.state.choices)
     print("result: %.4f %%" % best.state.value)
     print("length of CHOICES: %d" % len(CHOICES))
@@ -260,8 +260,8 @@ def main():
             print("-------------finished rollback--------------")
 
     print("-----------------best result------------------")
-    for arr in best_verify_num:
-        print(bin(arr))
+    # for arr in best_verify_num:
+    #     print(bin(arr))
     print(best_choices)
     print("sampling reliability: %.4f %%" % best_value)
     end = time.time()
